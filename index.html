@@ -4,7 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Egg Market · Dashboard Devoluciones</title>
-<!-- datos cargados como script, sin fetch, sin CORS -->
 <script src="data.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
@@ -12,22 +11,63 @@
 :root{--bg:#0f1117;--surface:#1a1d27;--card:#21253a;--border:#2e3350;--accent:#f5a623;--accent2:#4f8ef7;--accent3:#2dd4bf;--accent4:#a78bfa;--red:#f87171;--green:#4ade80;--text:#e8eaf0;--muted:#7c82a0;--r:14px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif}
-header{background:linear-gradient(135deg,#1a1d27,#0f1117);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+
+/* HEADER */
+header{background:linear-gradient(135deg,#1a1d27,#0f1117);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
 .logo{display:flex;align-items:center;gap:12px}
 .logo-icon{width:38px;height:38px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
 .logo h1{font-size:1.15rem;font-weight:700}.logo p{font-size:.74rem;color:var(--muted)}
 .hright{display:flex;align-items:center;gap:10px}
 .live{background:rgba(74,222,128,.15);color:var(--green);border:1px solid rgba(74,222,128,.3);padding:4px 10px;border-radius:20px;font-size:.72rem;font-weight:600}
 #badge{font-size:.8rem;color:var(--muted)}
-.filters{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
-.fg{display:flex;flex-direction:column;gap:4px;min-width:140px;flex:1}
+
+/* FILTERS */
+.filters{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:4px;min-width:130px;flex:1}
 .fg label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
-.fg select,.fg input{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:.82rem;outline:none}
+.fg select,.fg input[type=text]{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:.82rem;outline:none;transition:border-color .2s}
 .fg select:focus,.fg input:focus{border-color:var(--accent)}
-.btn{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:.8rem;cursor:pointer;align-self:flex-end;white-space:nowrap}
+.btn{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:.8rem;cursor:pointer;align-self:flex-end;white-space:nowrap;transition:all .2s}
 .btn:hover{border-color:var(--accent);color:var(--accent)}
-.main{padding:22px 28px;display:flex;flex-direction:column;gap:22px}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+
+/* DATE RANGE PICKER */
+.date-range-wrap{position:relative;min-width:250px;flex:1.5}
+.date-range-btn{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:.82rem;cursor:pointer;width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;transition:border-color .2s}
+.date-range-btn:hover,.date-range-btn.open{border-color:var(--accent)}
+.date-range-btn .icon{color:var(--accent);font-size:.9rem}
+.date-picker-panel{position:absolute;top:calc(100% + 6px);left:0;z-index:500;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,.5);display:none;min-width:580px}
+.date-picker-panel.show{display:block}
+.dp-header{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.dp-preset{background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 12px;font-size:.75rem;cursor:pointer;transition:all .15s;white-space:nowrap}
+.dp-preset:hover,.dp-preset.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+.dp-calendars{display:flex;gap:16px}
+.dp-cal{flex:1}
+.dp-cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.dp-cal-header button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:4px 8px;border-radius:6px;transition:all .15s}
+.dp-cal-header button:hover{color:var(--accent);background:rgba(245,166,35,.1)}
+.dp-cal-title{font-size:.85rem;font-weight:700;color:var(--text)}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.dp-day-name{text-align:center;font-size:.65rem;color:var(--muted);padding:4px 0;font-weight:600}
+.dp-day{text-align:center;font-size:.75rem;padding:6px 4px;border-radius:6px;cursor:pointer;color:var(--text);transition:all .15s;border:1px solid transparent}
+.dp-day:hover:not(.dp-empty):not(.dp-disabled){background:rgba(245,166,35,.2);border-color:var(--accent)}
+.dp-day.dp-today{color:var(--accent);font-weight:700}
+.dp-day.dp-selected{background:var(--accent);color:#000;font-weight:700}
+.dp-day.dp-in-range{background:rgba(245,166,35,.15);border-radius:0}
+.dp-day.dp-range-start{background:var(--accent);color:#000;font-weight:700;border-radius:6px 0 0 6px}
+.dp-day.dp-range-end{background:var(--accent);color:#000;font-weight:700;border-radius:0 6px 6px 0}
+.dp-day.dp-empty,.dp-day.dp-disabled{cursor:default;color:var(--border)}
+.dp-day.dp-disabled:hover{background:none;border-color:transparent}
+.dp-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.dp-selected-range{font-size:.78rem;color:var(--muted)}
+.dp-selected-range span{color:var(--accent);font-weight:700}
+.dp-actions{display:flex;gap:8px}
+.dp-apply{background:var(--accent);color:#000;border:none;border-radius:8px;padding:7px 18px;font-size:.8rem;font-weight:700;cursor:pointer}
+.dp-clear{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:.8rem;cursor:pointer}
+.dp-clear:hover{color:var(--red);border-color:var(--red)}
+
+/* MAIN */
+.main{padding:22px 28px;display:flex;flex-direction:column;gap:20px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}
 .kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
 .k1::before{background:var(--accent)}.k2::before{background:var(--accent2)}.k3::before{background:var(--red)}.k4::before{background:var(--green)}.k5::before{background:var(--accent4)}
@@ -78,14 +118,40 @@ tbody td{padding:8px 11px;vertical-align:middle}
 </header>
 
 <div class="filters">
-  <div class="fg" style="min-width:100px;max-width:110px">
-    <label>Año</label>
-    <select id="fA"><option value="">Todos</option><option>2025</option><option>2026</option></select>
+
+  <!-- DATE RANGE PICKER -->
+  <div class="fg date-range-wrap" style="min-width:260px;flex:2">
+    <label>Período</label>
+    <button class="date-range-btn" id="drBtn" onclick="togglePicker()">
+      <span id="drLabel">Todas las fechas</span>
+      <span class="icon">📅</span>
+    </button>
+    <div class="date-picker-panel" id="dpPanel">
+      <div class="dp-header">
+        <button class="dp-preset" onclick="setPreset('today')">Hoy</button>
+        <button class="dp-preset" onclick="setPreset('yesterday')">Ayer</button>
+        <button class="dp-preset" onclick="setPreset('7d')">Últimos 7 días</button>
+        <button class="dp-preset" onclick="setPreset('30d')">Últimos 30 días</button>
+        <button class="dp-preset" onclick="setPreset('mtd')">Este mes</button>
+        <button class="dp-preset" onclick="setPreset('ytd')">Este año</button>
+        <button class="dp-preset" onclick="setPreset('2025')">2025</button>
+        <button class="dp-preset" onclick="setPreset('2026')">2026</button>
+        <button class="dp-preset" onclick="setPreset('all')">Todo</button>
+      </div>
+      <div class="dp-calendars">
+        <div class="dp-cal" id="cal1"></div>
+        <div class="dp-cal" id="cal2"></div>
+      </div>
+      <div class="dp-footer">
+        <div class="dp-selected-range" id="dpRangeLabel">Selecciona fecha inicio</div>
+        <div class="dp-actions">
+          <button class="dp-clear" onclick="clearDates()">Limpiar</button>
+          <button class="dp-apply" onclick="applyDates()">Aplicar</button>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="fg" style="min-width:120px">
-    <label>Mes</label>
-    <select id="fM"><option value="">Todos</option></select>
-  </div>
+
   <div class="fg">
     <label>Compañía</label>
     <select id="fC"><option value="">Todas</option></select>
@@ -100,9 +166,9 @@ tbody td{padding:8px 11px;vertical-align:middle}
   </div>
   <div class="fg" style="flex:2;min-width:180px">
     <label>Buscar</label>
-    <input id="fS" type="text" placeholder="cliente, factura..."/>
+    <input id="fS" type="text" placeholder="cliente, factura, compañía..."/>
   </div>
-  <button class="btn" onclick="reset()">↺ Limpiar</button>
+  <button class="btn" onclick="reset()">↺ Limpiar todo</button>
 </div>
 
 <div class="main">
@@ -117,7 +183,7 @@ tbody td{padding:8px 11px;vertical-align:middle}
   <div class="cgrid">
     <div class="cc full">
       <div class="ch">
-        <div><div class="ct">Tendencia Mensual</div><div class="cs">Devoluciones en el tiempo</div></div>
+        <div><div class="ct">Tendencia</div><div class="cs" id="tendSub">por mes</div></div>
         <div class="tabs">
           <div class="tab on" onclick="mode('n',this)">Registros</div>
           <div class="tab" onclick="mode('q',this)">Cajas</div>
@@ -136,15 +202,20 @@ tbody td{padding:8px 11px;vertical-align:middle}
 
   <div class="tc">
     <div class="th">
-      <div><div class="ct">Detalle</div><div class="cs" id="tinfo">—</div></div>
-      <button class="btn" style="color:var(--accent3);border-color:var(--accent3)" onclick="csv()">⬇ CSV</button>
+      <div><div class="ct">Detalle de Registros</div><div class="cs" id="tinfo">—</div></div>
+      <button class="btn" style="color:var(--accent3);border-color:var(--accent3)" onclick="csvExport()">⬇ Exportar CSV</button>
     </div>
     <div class="tw">
       <table>
         <thead><tr>
-          <th onclick="srt('f')">Fecha</th><th onclick="srt('c')">Compañía</th><th onclick="srt('ch')">Chofer</th>
-          <th onclick="srt('r')">Razón</th><th onclick="srt('rd')">Detalle</th><th onclick="srt('q')">Cant.</th>
-          <th onclick="srt('cl')">Cliente</th><th onclick="srt('fac')">Factura</th>
+          <th onclick="srt('f')">Fecha ↕</th>
+          <th onclick="srt('c')">Compañía ↕</th>
+          <th onclick="srt('ch')">Chofer ↕</th>
+          <th onclick="srt('r')">Razón ↕</th>
+          <th onclick="srt('rd')">Detalle ↕</th>
+          <th onclick="srt('q')">Cant. ↕</th>
+          <th onclick="srt('cl')">Cliente ↕</th>
+          <th onclick="srt('fac')">Factura ↕</th>
         </tr></thead>
         <tbody id="tb"></tbody>
       </table>
@@ -154,49 +225,61 @@ tbody td{padding:8px 11px;vertical-align:middle}
 </div>
 
 <script>
-// ── Paleta ──────────────────────────────────────
+// ── PALETA ───────────────────────────────────────
 const C=['#f5a623','#4f8ef7','#2dd4bf','#a78bfa','#f87171','#4ade80','#fb923c','#60a5fa','#34d399','#c084fc','#f472b6','#facc15'];
 const AX={x:{ticks:{color:'#7c82a0',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#7c82a0',font:{size:10}},grid:{color:'rgba(255,255,255,.07)'}}};
 
-// ── Estado ──────────────────────────────────────
+// ── ESTADO ───────────────────────────────────────
 let ALL=[], F=[], CH={}, sc='f', sd=-1, pg=1, tM='n';
 const PS=50;
 
-// ── Mapear datos desde window.DEVOL_DATA ────────
+// Fechas del picker
+let dpStart=null, dpEnd=null, dpApplied={start:null,end:null};
+let dpHover=null, dpSelectingEnd=false;
+let cal1Month, cal2Month;
+
+// ── INIT ─────────────────────────────────────────
 ALL = window.DEVOL_DATA.map(d=>({
-  f:d.f, m:d.m, ml:d.ml, a:d.a,
+  f:d.f, fd:new Date(d.f+'T00:00:00'),
+  m:d.m, ml:d.ml, a:d.a,
   c:d.c, q:d.q, u:d.u,
   r:d.r, rd:d.rd,
   ch:d.ch, cl:d.cl, fac:d.fac
 }));
 
-// ── Filtros ─────────────────────────────────────
 function init(){
   const uniq=k=>[...new Set(ALL.map(d=>d[k]).filter(v=>v))].sort();
-  const mes=[...new Set(ALL.map(d=>d.m).filter(v=>v))].sort();
-  const ml={}; ALL.forEach(d=>{if(d.m)ml[d.m]=d.ml});
-  fill('fM',mes,v=>ml[v]||v);
   fill('fC',uniq('c'));
   fill('fCh',uniq('ch'));
   fill('fR',uniq('r'));
+
+  // Init calendar months
+  const now=new Date();
+  cal2Month={y:now.getFullYear(),m:now.getMonth()};
+  cal1Month={y:cal2Month.m===0?cal2Month.y-1:cal2Month.y, m:cal2Month.m===0?11:cal2Month.m-1};
+
+  renderCals();
   apply();
 }
 
-function fill(id,vals,lf=v=>v){
+function fill(id,vals){
   const s=document.getElementById(id);
-  vals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=lf(v);s.appendChild(o)});
+  vals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o)});
 }
 
+// ── FILTERS ──────────────────────────────────────
 function apply(){
-  const a=gv('fA'),m=gv('fM'),c=gv('fC'),ch=gv('fCh'),r=gv('fR');
-  const s=document.getElementById('fS').value.toLowerCase();
+  const c=gv('fC'), ch=gv('fCh'), r=gv('fR');
+  const s=document.getElementById('fS').value.toLowerCase().trim();
+  const ds=dpApplied.start, de=dpApplied.end;
+
   F=ALL.filter(d=>{
-    if(a && String(d.a)!==a) return false;
-    if(m && d.m!==m) return false;
-    if(c && d.c!==c) return false;
+    if(ds && d.fd < ds) return false;
+    if(de && d.fd > de) return false;
+    if(c  && d.c!==c)   return false;
     if(ch && d.ch!==ch) return false;
-    if(r && d.r!==r) return false;
-    if(s && !((d.cl||'').toLowerCase().includes(s)||(d.fac||'').toLowerCase().includes(s)||(d.c||'').toLowerCase().includes(s)||(d.r||'').toLowerCase().includes(s))) return false;
+    if(r  && d.r!==r)   return false;
+    if(s  && !((d.cl||'').toLowerCase().includes(s)||(d.fac||'').toLowerCase().includes(s)||(d.c||'').toLowerCase().includes(s)||(d.r||'').toLowerCase().includes(s)||(d.ch||'').toLowerCase().includes(s))) return false;
     return true;
   });
   pg=1;
@@ -206,28 +289,196 @@ function apply(){
 
 function gv(id){return document.getElementById(id).value}
 function sv(id,v){document.getElementById(id).textContent=v}
-function reset(){['fA','fM','fC','fCh','fR'].forEach(id=>document.getElementById(id).value='');document.getElementById('fS').value='';apply()}
-['fA','fM','fC','fCh','fR'].forEach(id=>document.getElementById(id).addEventListener('change',apply));
+
+function reset(){
+  ['fC','fCh','fR'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fS').value='';
+  clearDates();
+  apply();
+}
+
+['fC','fCh','fR'].forEach(id=>document.getElementById(id).addEventListener('change',apply));
 document.getElementById('fS').addEventListener('input',apply);
 
-// ── KPIs ────────────────────────────────────────
+// Close picker on outside click
+document.addEventListener('click',e=>{
+  const panel=document.getElementById('dpPanel');
+  const btn=document.getElementById('drBtn');
+  if(!panel.contains(e.target)&&!btn.contains(e.target)){
+    panel.classList.remove('show');
+    btn.classList.remove('open');
+  }
+});
+
+// ── DATE RANGE PICKER ────────────────────────────
+function togglePicker(){
+  const p=document.getElementById('dpPanel');
+  const b=document.getElementById('drBtn');
+  p.classList.toggle('show');
+  b.classList.toggle('open');
+}
+
+function fmtDate(d){
+  if(!d)return'';
+  return d.toLocaleDateString('es-PR',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+function setPreset(p){
+  const now=new Date(); now.setHours(0,0,0,0);
+  let s=null,e=null;
+  if(p==='today'){s=new Date(now);e=new Date(now)}
+  else if(p==='yesterday'){s=new Date(now);s.setDate(s.getDate()-1);e=new Date(s)}
+  else if(p==='7d'){s=new Date(now);s.setDate(s.getDate()-6);e=new Date(now)}
+  else if(p==='30d'){s=new Date(now);s.setDate(s.getDate()-29);e=new Date(now)}
+  else if(p==='mtd'){s=new Date(now.getFullYear(),now.getMonth(),1);e=new Date(now)}
+  else if(p==='ytd'){s=new Date(now.getFullYear(),0,1);e=new Date(now)}
+  else if(p==='2025'){s=new Date(2025,0,1);e=new Date(2025,11,31)}
+  else if(p==='2026'){s=new Date(2026,0,1);e=new Date(2026,11,31)}
+  else if(p==='all'){s=null;e=null}
+
+  dpStart=s; dpEnd=e; dpHover=null; dpSelectingEnd=false;
+  document.querySelectorAll('.dp-preset').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  updateRangeLabel();
+  renderCals();
+}
+
+function updateRangeLabel(){
+  const el=document.getElementById('dpRangeLabel');
+  if(!dpStart&&!dpEnd){el.innerHTML='Selecciona fecha inicio';return}
+  if(dpStart&&!dpEnd){el.innerHTML=`Desde: <span>${fmtDate(dpStart)}</span> → selecciona fin`;return}
+  el.innerHTML=`<span>${fmtDate(dpStart)}</span> → <span>${fmtDate(dpEnd)}</span>`;
+}
+
+function clearDates(){
+  dpStart=null;dpEnd=null;dpHover=null;dpSelectingEnd=false;
+  dpApplied={start:null,end:null};
+  document.getElementById('drLabel').textContent='Todas las fechas';
+  document.querySelectorAll('.dp-preset').forEach(b=>b.classList.remove('active'));
+  updateRangeLabel();
+  renderCals();
+  apply();
+}
+
+function applyDates(){
+  if(!dpStart){clearDates();return}
+  const e=dpEnd||dpStart;
+  dpApplied={start:new Date(Math.min(dpStart,e)),end:new Date(Math.max(dpStart,e))};
+  dpApplied.end.setHours(23,59,59,999);
+  // Label
+  if(dpApplied.start.getTime()===dpApplied.end.getTime()-86399999){
+    document.getElementById('drLabel').textContent=fmtDate(dpApplied.start);
+  } else {
+    document.getElementById('drLabel').textContent=fmtDate(dpApplied.start)+' → '+fmtDate(new Date(dpApplied.end.getTime()-86399999));
+  }
+  document.getElementById('dpPanel').classList.remove('show');
+  document.getElementById('drBtn').classList.remove('open');
+  apply();
+}
+
+// Calendar rendering
+const MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DAYS=['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
+
+function renderCals(){
+  renderCal('cal1',cal1Month,'prev1','next1');
+  renderCal('cal2',cal2Month,'prev2','next2');
+}
+
+function renderCal(elId,mo,prevId,nextId){
+  const el=document.getElementById(elId);
+  const firstDay=new Date(mo.y,mo.m,1).getDay();
+  const daysInMonth=new Date(mo.y,mo.m+1,0).getDate();
+  const today=new Date(); today.setHours(0,0,0,0);
+
+  let html=`<div class="dp-cal-header">
+    <button onclick="navCal('${elId}','${prevId}','${nextId}',-1)">‹</button>
+    <span class="dp-cal-title">${MONTHS[mo.m]} ${mo.y}</span>
+    <button onclick="navCal('${elId}','${prevId}','${nextId}',1)">›</button>
+  </div>
+  <div class="dp-grid">`;
+  DAYS.forEach(d=>html+=`<div class="dp-day-name">${d}</div>`);
+  for(let i=0;i<firstDay;i++) html+=`<div class="dp-day dp-empty"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const dt=new Date(mo.y,mo.m,d);
+    const eff_end=dpEnd||(dpHover&&dpSelectingEnd?dpHover:null);
+    const rStart=dpStart?new Date(Math.min(dpStart,eff_end||dpStart)):null;
+    const rEnd=dpStart?new Date(Math.max(dpStart,eff_end||dpStart)):null;
+    let cls='dp-day';
+    if(dt.getTime()===today.getTime()) cls+=' dp-today';
+    if(dpStart&&dt.getTime()===dpStart.getTime()&&(!dpEnd||dpStart.getTime()===dpEnd.getTime())) cls+=' dp-selected';
+    if(rStart&&rEnd&&rStart.getTime()!==rEnd.getTime()){
+      if(dt.getTime()===rStart.getTime()) cls+=' dp-range-start';
+      else if(dt.getTime()===rEnd.getTime()) cls+=' dp-range-end';
+      else if(dt>rStart&&dt<rEnd) cls+=' dp-in-range';
+    }
+    html+=`<div class="${cls}" onclick="pickDay(${mo.y},${mo.m},${d})" onmouseenter="hoverDay(${mo.y},${mo.m},${d})">${d}</div>`;
+  }
+  html+=`</div>`;
+  el.innerHTML=html;
+}
+
+function navCal(elId,prevId,nextId,dir){
+  // Determine which calendar
+  const isCal1=elId==='cal1';
+  const mo=isCal1?cal1Month:cal2Month;
+  let nm=mo.m+dir, ny=mo.y;
+  if(nm<0){nm=11;ny--} else if(nm>11){nm=0;ny++}
+  if(isCal1){
+    cal1Month={y:ny,m:nm};
+    // If cal1 goes past cal2, advance cal2
+    if(ny>cal2Month.y||(ny===cal2Month.y&&nm>=cal2Month.m)){
+      cal2Month={y:nm===11?ny+1:ny,m:nm===11?0:nm+1};
+    }
+  } else {
+    cal2Month={y:ny,m:nm};
+    // If cal2 goes before cal1, move cal1 back
+    if(ny<cal1Month.y||(ny===cal1Month.y&&nm<=cal1Month.m)){
+      cal1Month={y:nm===0?ny-1:ny,m:nm===0?11:nm-1};
+    }
+  }
+  renderCals();
+}
+
+function pickDay(y,m,d){
+  const dt=new Date(y,m,d);
+  document.querySelectorAll('.dp-preset').forEach(b=>b.classList.remove('active'));
+  if(!dpStart||(!dpSelectingEnd&&dpEnd)){
+    // Start new selection
+    dpStart=dt; dpEnd=null; dpHover=null; dpSelectingEnd=true;
+  } else {
+    // End selection
+    if(dt<dpStart){dpEnd=dpStart;dpStart=dt}
+    else dpEnd=dt;
+    dpSelectingEnd=false;
+  }
+  updateRangeLabel();
+  renderCals();
+}
+
+function hoverDay(y,m,d){
+  if(!dpSelectingEnd)return;
+  dpHover=new Date(y,m,d);
+  renderCals();
+}
+
+// ── KPIs ─────────────────────────────────────────
 function kpis(){
   const q=F.reduce((s,d)=>s+(d.q||0),0);
   sv('k1',F.length.toLocaleString());
-  sv('k1s','de '+ALL.length.toLocaleString());
+  sv('k1s','de '+ALL.length.toLocaleString()+' total');
   sv('k2',q.toLocaleString('es',{maximumFractionDigits:0}));
   sv('k3',new Set(F.map(d=>d.cl).filter(Boolean)).size);
   sv('k4',new Set(F.map(d=>d.ch).filter(Boolean)).size);
   sv('k5',new Set(F.map(d=>d.r).filter(Boolean)).size);
 }
 
-// ── Charts ───────────────────────────────────────
+// ── CHARTS ───────────────────────────────────────
 function grp(k,top=12,qty=false){
   const m={};
   F.forEach(d=>{const v=d[k];if(!v||v==='nan')return;m[v]=(m[v]||0)+(qty?d.q:1)});
   return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,top);
 }
-
 function dc(id){if(CH[id]){CH[id].destroy();delete CH[id]}}
 
 function charts(){tend();hbar('cR',grp('r',12));dough('cCo',grp('c',8));hbar('cCh',grp('ch',10));hbar('cD',grp('rd',12))}
@@ -236,14 +487,28 @@ function mode(m,el){tM=m;document.querySelectorAll('.tab').forEach(t=>t.classLis
 
 function tend(){
   dc('cT');
+  // Decide grouping: if range ≤ 31 days group by day, else by month
+  let byDay=false;
+  if(dpApplied.start&&dpApplied.end){
+    const diff=(dpApplied.end-dpApplied.start)/(1000*60*60*24);
+    byDay=diff<=31;
+  }
+  sv('tendSub', byDay?'por día':'por mes');
+
   const bm={};
-  F.forEach(d=>{if(!d.m)return;if(!bm[d.m])bm[d.m]={l:d.ml,n:0,q:0};bm[d.m].n++;bm[d.m].q+=d.q||0});
+  F.forEach(d=>{
+    const key=byDay?d.f:d.m;
+    const lbl=byDay?d.f:(d.ml||d.m);
+    if(!key)return;
+    if(!bm[key])bm[key]={l:lbl,n:0,q:0};
+    bm[key].n++;bm[key].q+=d.q||0;
+  });
   const s=Object.entries(bm).sort((a,b)=>a[0].localeCompare(b[0]));
   const ctx=document.getElementById('cT').getContext('2d');
   const g=ctx.createLinearGradient(0,0,0,170);g.addColorStop(0,'rgba(245,166,35,.4)');g.addColorStop(1,'rgba(245,166,35,0)');
   CH['cT']=new Chart(ctx,{
     type:'line',
-    data:{labels:s.map(([,v])=>v.l),datasets:[{data:s.map(([,v])=>tM==='q'?v.q:v.n),borderColor:'#f5a623',backgroundColor:g,fill:true,tension:0.4,pointBackgroundColor:'#f5a623',pointRadius:3,borderWidth:2}]},
+    data:{labels:s.map(([,v])=>v.l),datasets:[{data:s.map(([,v])=>tM==='q'?v.q:v.n),borderColor:'#f5a623',backgroundColor:g,fill:true,tension:0.4,pointBackgroundColor:'#f5a623',pointRadius:s.length<40?3:0,borderWidth:2}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:AX}
   });
 }
@@ -272,14 +537,14 @@ function dough(id,data){
     options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
       plugins:{
         legend:{position:'right',labels:{color:'#7c82a0',font:{size:10},boxWidth:10,padding:8}},
-        datalabels:{color:'#fff',font:{size:9,weight:'bold'},formatter:(v,ctx2)=>{const t=ctx2.dataset.data.reduce((a,b)=>a+b,0);const p=((v/t)*100).toFixed(0);return p>5?p+'%':''}}
+        datalabels:{color:'#fff',font:{size:9,weight:'bold'},formatter:(v,c)=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);const p=((v/t)*100).toFixed(0);return p>5?p+'%':''}}
       }
     },
     plugins:[ChartDataLabels]
   });
 }
 
-// ── Tabla ────────────────────────────────────────
+// ── TABLA ────────────────────────────────────────
 const CC={'Egg Market':'ba','Hua Xing':'bb',"Brianna's":'be','VitaPlena':'bd','Empire Foods':'bf','Tasu':'bc','Dulzura':'bb'};
 const RC={'Indico Seguir':'bd','No en Camión':'bb','No Tiempo':'bc','Duplicado':'bf','No Ordenado':'be'};
 
@@ -314,14 +579,14 @@ function table(){
 }
 
 // ── CSV ──────────────────────────────────────────
-function csv(){
-  const h=['Fecha','Año','Mes','Compañía','Chofer','Razón','Detalle','Cantidad','UOM','Cliente','Factura'];
-  const rows=F.map(d=>[d.f,d.a,d.m,d.c,d.ch,d.r,d.rd,d.q,d.u,d.cl,d.fac].map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(','));
+function csvExport(){
+  const h=['Fecha','Año','Compañía','Chofer','Razón','Detalle','Cantidad','UOM','Cliente','Factura'];
+  const rows=F.map(d=>[d.f,d.a,d.c,d.ch,d.r,d.rd,d.q,d.u,d.cl,d.fac].map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(','));
   const blob=new Blob(['\uFEFF'+[h.join(','),...rows].join('\n')],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`devoluciones_${new Date().toISOString().slice(0,10)}.csv`;a.click();
 }
 
-// ── Arrancar ─────────────────────────────────────
+// ── ARRANCAR ─────────────────────────────────────
 init();
 </script>
 </body>

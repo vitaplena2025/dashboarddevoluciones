@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Egg Market · Dashboard Devoluciones</title>
+<!-- datos cargados como script, sin fetch, sin CORS -->
+<script src="data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--card:#21253a;--border:#2e3350;--accent:#f5a623;--accent2:#4f8ef7;--accent3:#2dd4bf;--accent4:#a78bfa;--red:#f87171;--green:#4ade80;--text:#e8eaf0;--muted:#7c82a0;--r:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif}
+header{background:linear-gradient(135deg,#1a1d27,#0f1117);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:38px;height:38px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.logo h1{font-size:1.15rem;font-weight:700}.logo p{font-size:.74rem;color:var(--muted)}
+.hright{display:flex;align-items:center;gap:10px}
+.live{background:rgba(74,222,128,.15);color:var(--green);border:1px solid rgba(74,222,128,.3);padding:4px 10px;border-radius:20px;font-size:.72rem;font-weight:600}
+#badge{font-size:.8rem;color:var(--muted)}
+.filters{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:4px;min-width:140px;flex:1}
+.fg label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.fg select,.fg input{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:.82rem;outline:none}
+.fg select:focus,.fg input:focus{border-color:var(--accent)}
+.btn{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:.8rem;cursor:pointer;align-self:flex-end;white-space:nowrap}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.main{padding:22px 28px;display:flex;flex-direction:column;gap:22px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.k1::before{background:var(--accent)}.k2::before{background:var(--accent2)}.k3::before{background:var(--red)}.k4::before{background:var(--green)}.k5::before{background:var(--accent4)}
+.kl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.kv{font-size:1.8rem;font-weight:800;letter-spacing:-1px}
+.ks{font-size:.72rem;color:var(--muted);margin-top:3px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:16px}
+.cc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px}
+.cc.full{grid-column:1/-1}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.ct{font-size:.88rem;font-weight:700}.cs{font-size:.7rem;color:var(--muted);margin-top:2px}
+.tabs{display:flex;gap:3px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:3px}
+.tab{padding:5px 12px;border-radius:6px;font-size:.76rem;cursor:pointer;color:var(--muted);transition:all .2s}
+.tab.on{background:var(--accent);color:#000;font-weight:700}
+.tc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px}
+.th{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.tw{overflow-x:auto;max-height:340px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:.79rem}
+thead th{position:sticky;top:0;background:var(--surface);color:var(--muted);text-align:left;padding:8px 11px;font-size:.67rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600;border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap}
+thead th:hover{color:var(--accent)}
+tbody tr{border-bottom:1px solid var(--border)}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+tbody td{padding:8px 11px;vertical-align:middle}
+.b{display:inline-block;padding:2px 7px;border-radius:20px;font-size:.67rem;font-weight:600}
+.ba{background:rgba(245,166,35,.15);color:var(--accent)}
+.bb{background:rgba(79,142,247,.15);color:var(--accent2)}
+.bc{background:rgba(248,113,113,.15);color:var(--red)}
+.bd{background:rgba(74,222,128,.15);color:var(--green)}
+.be{background:rgba(167,139,250,.15);color:var(--accent4)}
+.bf{background:rgba(45,212,191,.15);color:var(--accent3)}
+.pag{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-top:10px;flex-wrap:wrap}
+.pb{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 10px;font-size:.76rem;cursor:pointer}
+.pb:hover,.pb.on{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+.pi{font-size:.76rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🥚</div>
+    <div><h1>Egg Market</h1><p>Dashboard de Devoluciones</p></div>
+  </div>
+  <div class="hright">
+    <span class="live">● LIVE</span>
+    <span id="badge">cargando...</span>
+  </div>
+</header>
+
+<div class="filters">
+  <div class="fg" style="min-width:100px;max-width:110px">
+    <label>Año</label>
+    <select id="fA"><option value="">Todos</option><option>2025</option><option>2026</option></select>
+  </div>
+  <div class="fg" style="min-width:120px">
+    <label>Mes</label>
+    <select id="fM"><option value="">Todos</option></select>
+  </div>
+  <div class="fg">
+    <label>Compañía</label>
+    <select id="fC"><option value="">Todas</option></select>
+  </div>
+  <div class="fg">
+    <label>Chofer</label>
+    <select id="fCh"><option value="">Todos</option></select>
+  </div>
+  <div class="fg">
+    <label>Razón</label>
+    <select id="fR"><option value="">Todas</option></select>
+  </div>
+  <div class="fg" style="flex:2;min-width:180px">
+    <label>Buscar</label>
+    <input id="fS" type="text" placeholder="cliente, factura..."/>
+  </div>
+  <button class="btn" onclick="reset()">↺ Limpiar</button>
+</div>
+
+<div class="main">
+  <div class="kpis">
+    <div class="kpi k1"><div class="kl">Devoluciones</div><div class="kv" id="k1">—</div><div class="ks" id="k1s"></div></div>
+    <div class="kpi k2"><div class="kl">Cajas</div><div class="kv" id="k2">—</div><div class="ks">unidades</div></div>
+    <div class="kpi k3"><div class="kl">Clientes</div><div class="kv" id="k3">—</div><div class="ks">únicos</div></div>
+    <div class="kpi k4"><div class="kl">Choferes</div><div class="kv" id="k4">—</div><div class="ks">activos</div></div>
+    <div class="kpi k5"><div class="kl">Razones</div><div class="kv" id="k5">—</div><div class="ks">categorías</div></div>
+  </div>
+
+  <div class="cgrid">
+    <div class="cc full">
+      <div class="ch">
+        <div><div class="ct">Tendencia Mensual</div><div class="cs">Devoluciones en el tiempo</div></div>
+        <div class="tabs">
+          <div class="tab on" onclick="mode('n',this)">Registros</div>
+          <div class="tab" onclick="mode('q',this)">Cajas</div>
+        </div>
+      </div>
+      <div style="position:relative;height:180px"><canvas id="cT"></canvas></div>
+    </div>
+  </div>
+
+  <div class="cgrid">
+    <div class="cc"><div class="ch"><div><div class="ct">Razón Principal</div><div class="cs">Top 12</div></div></div><div style="position:relative;height:260px"><canvas id="cR"></canvas></div></div>
+    <div class="cc"><div class="ch"><div><div class="ct">Por Compañía</div><div class="cs">Distribución</div></div></div><div style="position:relative;height:260px"><canvas id="cCo"></canvas></div></div>
+    <div class="cc"><div class="ch"><div><div class="ct">Por Chofer</div><div class="cs">Top 10</div></div></div><div style="position:relative;height:260px"><canvas id="cCh"></canvas></div></div>
+    <div class="cc"><div class="ch"><div><div class="ct">Razón Detallada</div><div class="cs">Desglose</div></div></div><div style="position:relative;height:260px"><canvas id="cD"></canvas></div></div>
+  </div>
+
+  <div class="tc">
+    <div class="th">
+      <div><div class="ct">Detalle</div><div class="cs" id="tinfo">—</div></div>
+      <button class="btn" style="color:var(--accent3);border-color:var(--accent3)" onclick="csv()">⬇ CSV</button>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th onclick="srt('f')">Fecha</th><th onclick="srt('c')">Compañía</th><th onclick="srt('ch')">Chofer</th>
+          <th onclick="srt('r')">Razón</th><th onclick="srt('rd')">Detalle</th><th onclick="srt('q')">Cant.</th>
+          <th onclick="srt('cl')">Cliente</th><th onclick="srt('fac')">Factura</th>
+        </tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+    <div class="pag" id="pg"></div>
+  </div>
+</div>
+
+<script>
+// ── Paleta ──────────────────────────────────────
+const C=['#f5a623','#4f8ef7','#2dd4bf','#a78bfa','#f87171','#4ade80','#fb923c','#60a5fa','#34d399','#c084fc','#f472b6','#facc15'];
+const AX={x:{ticks:{color:'#7c82a0',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#7c82a0',font:{size:10}},grid:{color:'rgba(255,255,255,.07)'}}};
+
+// ── Estado ──────────────────────────────────────
+let ALL=[], F=[], CH={}, sc='f', sd=-1, pg=1, tM='n';
+const PS=50;
+
+// ── Mapear datos desde window.DEVOL_DATA ────────
+ALL = window.DEVOL_DATA.map(d=>({
+  f:d.f, m:d.m, ml:d.ml, a:d.a,
+  c:d.c, q:d.q, u:d.u,
+  r:d.r, rd:d.rd,
+  ch:d.ch, cl:d.cl, fac:d.fac
+}));
+
+// ── Filtros ─────────────────────────────────────
+function init(){
+  const uniq=k=>[...new Set(ALL.map(d=>d[k]).filter(v=>v))].sort();
+  const mes=[...new Set(ALL.map(d=>d.m).filter(v=>v))].sort();
+  const ml={}; ALL.forEach(d=>{if(d.m)ml[d.m]=d.ml});
+  fill('fM',mes,v=>ml[v]||v);
+  fill('fC',uniq('c'));
+  fill('fCh',uniq('ch'));
+  fill('fR',uniq('r'));
+  apply();
+}
+
+function fill(id,vals,lf=v=>v){
+  const s=document.getElementById(id);
+  vals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=lf(v);s.appendChild(o)});
+}
+
+function apply(){
+  const a=gv('fA'),m=gv('fM'),c=gv('fC'),ch=gv('fCh'),r=gv('fR');
+  const s=document.getElementById('fS').value.toLowerCase();
+  F=ALL.filter(d=>{
+    if(a && String(d.a)!==a) return false;
+    if(m && d.m!==m) return false;
+    if(c && d.c!==c) return false;
+    if(ch && d.ch!==ch) return false;
+    if(r && d.r!==r) return false;
+    if(s && !((d.cl||'').toLowerCase().includes(s)||(d.fac||'').toLowerCase().includes(s)||(d.c||'').toLowerCase().includes(s)||(d.r||'').toLowerCase().includes(s))) return false;
+    return true;
+  });
+  pg=1;
+  kpis(); charts(); table();
+  document.getElementById('badge').textContent=F.length.toLocaleString()+' registros';
+}
+
+function gv(id){return document.getElementById(id).value}
+function sv(id,v){document.getElementById(id).textContent=v}
+function reset(){['fA','fM','fC','fCh','fR'].forEach(id=>document.getElementById(id).value='');document.getElementById('fS').value='';apply()}
+['fA','fM','fC','fCh','fR'].forEach(id=>document.getElementById(id).addEventListener('change',apply));
+document.getElementById('fS').addEventListener('input',apply);
+
+// ── KPIs ────────────────────────────────────────
+function kpis(){
+  const q=F.reduce((s,d)=>s+(d.q||0),0);
+  sv('k1',F.length.toLocaleString());
+  sv('k1s','de '+ALL.length.toLocaleString());
+  sv('k2',q.toLocaleString('es',{maximumFractionDigits:0}));
+  sv('k3',new Set(F.map(d=>d.cl).filter(Boolean)).size);
+  sv('k4',new Set(F.map(d=>d.ch).filter(Boolean)).size);
+  sv('k5',new Set(F.map(d=>d.r).filter(Boolean)).size);
+}
+
+// ── Charts ───────────────────────────────────────
+function grp(k,top=12,qty=false){
+  const m={};
+  F.forEach(d=>{const v=d[k];if(!v||v==='nan')return;m[v]=(m[v]||0)+(qty?d.q:1)});
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,top);
+}
+
+function dc(id){if(CH[id]){CH[id].destroy();delete CH[id]}}
+
+function charts(){tend();hbar('cR',grp('r',12));dough('cCo',grp('c',8));hbar('cCh',grp('ch',10));hbar('cD',grp('rd',12))}
+
+function mode(m,el){tM=m;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');tend()}
+
+function tend(){
+  dc('cT');
+  const bm={};
+  F.forEach(d=>{if(!d.m)return;if(!bm[d.m])bm[d.m]={l:d.ml,n:0,q:0};bm[d.m].n++;bm[d.m].q+=d.q||0});
+  const s=Object.entries(bm).sort((a,b)=>a[0].localeCompare(b[0]));
+  const ctx=document.getElementById('cT').getContext('2d');
+  const g=ctx.createLinearGradient(0,0,0,170);g.addColorStop(0,'rgba(245,166,35,.4)');g.addColorStop(1,'rgba(245,166,35,0)');
+  CH['cT']=new Chart(ctx,{
+    type:'line',
+    data:{labels:s.map(([,v])=>v.l),datasets:[{data:s.map(([,v])=>tM==='q'?v.q:v.n),borderColor:'#f5a623',backgroundColor:g,fill:true,tension:0.4,pointBackgroundColor:'#f5a623',pointRadius:3,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:AX}
+  });
+}
+
+function hbar(id,data){
+  dc(id);if(!data.length)return;
+  const vals=data.map(d=>d[1]),mx=Math.max(...vals);
+  const ctx=document.getElementById(id).getContext('2d');
+  CH[id]=new Chart(ctx,{
+    type:'bar',
+    data:{labels:data.map(d=>d[0]),datasets:[{data:vals,backgroundColor:vals.map((_,i)=>C[i%C.length]+'cc'),borderColor:vals.map((_,i)=>C[i%C.length]),borderWidth:1,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},datalabels:{color:'#e8eaf0',anchor:'end',align:'end',font:{size:10,weight:'bold'},formatter:v=>v.toLocaleString()}},
+      scales:{x:{ticks:{color:'#7c82a0',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'},max:mx*1.2},y:{ticks:{color:'#e8eaf0',font:{size:10}},grid:{display:false}}}
+    },
+    plugins:[ChartDataLabels]
+  });
+}
+
+function dough(id,data){
+  dc(id);if(!data.length)return;
+  const ctx=document.getElementById(id).getContext('2d');
+  CH[id]=new Chart(ctx,{
+    type:'doughnut',
+    data:{labels:data.map(d=>d[0]),datasets:[{data:data.map(d=>d[1]),backgroundColor:C,borderWidth:2,borderColor:'#21253a'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
+      plugins:{
+        legend:{position:'right',labels:{color:'#7c82a0',font:{size:10},boxWidth:10,padding:8}},
+        datalabels:{color:'#fff',font:{size:9,weight:'bold'},formatter:(v,ctx2)=>{const t=ctx2.dataset.data.reduce((a,b)=>a+b,0);const p=((v/t)*100).toFixed(0);return p>5?p+'%':''}}
+      }
+    },
+    plugins:[ChartDataLabels]
+  });
+}
+
+// ── Tabla ────────────────────────────────────────
+const CC={'Egg Market':'ba','Hua Xing':'bb',"Brianna's":'be','VitaPlena':'bd','Empire Foods':'bf','Tasu':'bc','Dulzura':'bb'};
+const RC={'Indico Seguir':'bd','No en Camión':'bb','No Tiempo':'bc','Duplicado':'bf','No Ordenado':'be'};
+
+function srt(col){if(sc===col)sd*=-1;else{sc=col;sd=-1}table()}
+
+function table(){
+  const sorted=[...F].sort((a,b)=>{
+    let av=a[sc]||'',bv=b[sc]||'';
+    if(sc==='q'){av=a.q||0;bv=b.q||0}
+    return av<bv?sd:av>bv?-sd:0;
+  });
+  const tot=sorted.length,pages=Math.max(1,Math.ceil(tot/PS));
+  if(pg>pages)pg=pages;
+  const sl=sorted.slice((pg-1)*PS,pg*PS);
+  document.getElementById('tb').innerHTML=sl.map(d=>`<tr>
+    <td>${d.f||'—'}</td>
+    <td><span class="b ${CC[d.c]||'bb'}">${d.c||'—'}</span></td>
+    <td>${d.ch||'—'}</td>
+    <td><span class="b ${RC[d.r]||'bb'}">${d.r||'—'}</span></td>
+    <td style="color:var(--muted);font-size:.74rem">${d.rd||'—'}</td>
+    <td style="font-weight:700;color:var(--accent)">${d.q||0}</td>
+    <td>${d.cl||'—'}</td>
+    <td style="color:var(--muted)">${d.fac||'—'}</td>
+  </tr>`).join('');
+  sv('tinfo',`${tot.toLocaleString()} registros · pág ${pg}/${pages}`);
+  const p=document.getElementById('pg');p.innerHTML='';
+  const ab=(l,n,on=false,dis=false)=>{const b=document.createElement('button');b.className='pb'+(on?' on':'');b.textContent=l;b.disabled=dis;b.onclick=()=>{pg=n;table()};p.appendChild(b)};
+  ab('«',1,false,pg===1);ab('‹',pg-1,false,pg===1);
+  for(let i=Math.max(1,pg-2);i<=Math.min(pages,pg+2);i++)ab(i,i,i===pg);
+  ab('›',pg+1,false,pg===pages);ab('»',pages,false,pg===pages);
+  const inf=document.createElement('span');inf.className='pi';inf.textContent=`${(pg-1)*PS+1}–${Math.min(pg*PS,tot)} de ${tot}`;p.appendChild(inf);
+}
+
+// ── CSV ──────────────────────────────────────────
+function csv(){
+  const h=['Fecha','Año','Mes','Compañía','Chofer','Razón','Detalle','Cantidad','UOM','Cliente','Factura'];
+  const rows=F.map(d=>[d.f,d.a,d.m,d.c,d.ch,d.r,d.rd,d.q,d.u,d.cl,d.fac].map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(','));
+  const blob=new Blob(['\uFEFF'+[h.join(','),...rows].join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`devoluciones_${new Date().toISOString().slice(0,10)}.csv`;a.click();
+}
+
+// ── Arrancar ─────────────────────────────────────
+init();
+</script>
+</body>
+</html>
